@@ -36,6 +36,7 @@ pp <- PrettyPrinter(null, false);
 print <- pp.print.bindenv(pp);
 
 
+
 const authToken = "@{IOT_HUB_CONNECTION}";
 
 const rebootChance = 30;

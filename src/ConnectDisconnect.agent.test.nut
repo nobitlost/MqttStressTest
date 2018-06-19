@@ -7,16 +7,15 @@ class ConnectDisconnectTest extends TestBase {
     }
 
     function _run() {
-        print("Connecting....");
-        client.connect(_onconnected.bindenv(this), options);
+        _connect();
     }
 
     function _disconnected() {
         print("Disconnected");
     }
 
-    function _onconnected(rc, info) {
-        print("OnConnected " + rc + ":" + info);
+    function _onconnected(rc) {
+        print("OnConnected " + rc);
 
         if (rc == 0) {
             _disconnect();
@@ -25,9 +24,8 @@ class ConnectDisconnectTest extends TestBase {
         }
     }
 
-    function _disconnect() {
-        print("Disconnecting...");
-        client.disconnect(_disconnected.bindenv(this));
+    function _disconnect() {;
+        base._disconnect();
 
         // try to avoid IP address ban
         imp.wakeup(::irand(10), _run.bindenv(this));
