@@ -65,7 +65,7 @@ class SubscribeTest extends TestBase {
         if (rc == 0) {
             _run();
         } else {
-            print("Critical error. Could not subscribe");
+            print("Critical error. Could not subscribe: " + rc);
         }
     }
 
@@ -75,7 +75,7 @@ class SubscribeTest extends TestBase {
         if (rc == 0) {
             _subscribe();
         } else {
-            print("Can't unsubscribe");
+            print("Can't unsubscribe: " + rc);
             print("Continue as SUBSCRIBED");
             imp.wakeup(1, _run.binenv(this));
         }
@@ -87,7 +87,7 @@ class SubscribeTest extends TestBase {
         if (rc == 0) {
             _subscribe();
         } else {
-            print("Critical error. Test aborted");
+            print("Critical error. Test aborted: " + rc);
         }
     }
 
