@@ -10,6 +10,7 @@ class Device2CloudTest extends TestBase {
 
         if (client == null) return;
 
+
         local retry = 10;
 
         local rand = ::irand(MAX_MESSAGE_SIZE);
@@ -47,8 +48,8 @@ class Device2CloudTest extends TestBase {
         }
     }
 
-    function _onSend(messId, rc) {
-        print("_onSend: " + messId + " rc=" + rc);
+    function _onSend(rc) {
+        print("_onSend: rc=" + rc);
     }
 
     function _ondelivery(messages) {
@@ -64,8 +65,8 @@ class Device2CloudTest extends TestBase {
     }
 
 
-    function _onconnected(rc, info) {
-        print("OnConnected " + this + " rc=" + rc + " info=" + info);
+    function _onconnected(rc) {
+        print("OnConnected " + this + " rc=" + rc);
 
         if (rc == 0) {
             _send();

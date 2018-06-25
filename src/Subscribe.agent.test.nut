@@ -1,21 +1,22 @@
-@include "github:sergey-nbl/AzureTwins/AzureTwins.agent.lib.nut"
+class SubscribeTest extends TestBase {
 
-class SubscribeTest extends AzureTwin {
+    _reqCounter = 0;
+    topic = "$iothub/twin/res/#";
 
     constructor(authToken) {
-        base.constructor(authToken, connectionHandler.bindenv(this), twinUpdateHandler.bindenv(this));
+        _create(authToken);
 
-        _debug = false;
+        imp.wakeup(1, _connect.bindenv(this));
     }
 
-    function run() {
+    function _run() {
         local nextMethod = ::irand(100);
 
         if (nextMethod < 33) {
-            getCurrentStatus(onCurrentStatus.bindenv(this));
+            getCurrentStatus();
         } else if (nextMethod > 66) {
             local status = { "field1" : ::irand(100) };
-            updateStatus(http.jsonencode(status), onUpdateStatus.bindenv(this));
+            updateStatus(http.jsonencode(status));
         } else {
             restart();
         }
@@ -23,48 +24,71 @@ class SubscribeTest extends AzureTwin {
 
     function restart() {
         print("Resubsribing");
-        local topics = ["$iothub/twin/res/#","$iothub/methods/POST/#", "$iothub/twin/PATCH/properties/desired/#"];
-        try {
-            _mqttclient.unsubscribe(topics);
-            _state  = CONNECTED;
-            _subscribe();
-        } catch (e) {
-            print("Can't unsubscribe: " + e);
-            print("Continue as SUBSCRIBED");
-            run();
-        }
+        client.unsubscribe(topic, _onunsubscribe.bindenv(this));
     }
 
-    function onCurrentStatus(err, body) {
+    function updateStatus(status) {
+        print("Updating status...");
+        local topic   = "$iothub/twin/GET/?$rid=" + _reqCounter;
+        local message = client.createmessage(topic, status);
+        message.sendasync(onUpdateStatus.bindenv(this));
+        _reqCounter++;
+    }
+
+    function getCurrentStatus() {
+        print("Retrieving current status...");
+        local topic   = "$iothub/twin/PATCH/properties/reported/?$rid=" + _reqCounter;
+        local message = client.createmessage(topic, "");
+        message.sendasync(onCurrentStatus.bindenv(this));
+        _reqCounter++;
+    }
+
+    function onCurrentStatus(err) {
         print("onCurrentStatus: err=" + err);
-        run();
+        imp.wakeup(1, _run.bindenv(this));
     }
 
-    function onUpdateStatus(err, body) {
+    function onUpdateStatus(err) {
         print("onUpdateStatus: err=" + err );
-        run();
+        imp.wakeup(1, _run.bindenv(this));
     }
 
-    function shutdown(onComplete) {
-        local gracefully = :: irand(100);
-
-        if (gracefully) _mqttclient.disconnect();
-
-        print ("Test " + this + " closed");
-
-        onComplete();
+    function _subscribe() {
+        print("Subscribing");
+        local qos = 0; // AT_MOST_ONCE
+        client.subscribe(topic, 0, _onsubscribe.bindenv(this));
     }
 
-    function connectionHandler(state) {
-        print("Twin connection status " + state);
+    function _onsubscribe(rc, qos) {
+        print("OnSubsribe " + rc + " " + qos);
 
-        if (state == SUBSCRIBED) {
-            run();
+        if (rc == 0) {
+            _run();
+        } else {
+            print("Critical error. Could not subscribe: " + rc);
         }
     }
 
-    function twinUpdateHandler(version, body) {
-        print("Twin update: " + version + " : " + body);
+    function _onunsubscribe(rc) {
+        print("OnUnSubsribe: " + rc);
+
+        if (rc == 0) {
+            _subscribe();
+        } else {
+            print("Can't unsubscribe: " + rc);
+            print("Continue as SUBSCRIBED");
+            imp.wakeup(1, _run.binenv(this));
+        }
+    }
+
+    function _onconnected(rc) {
+        print("OnConnected " + rc);
+
+        if (rc == 0) {
+            _subscribe();
+        } else {
+            print("Critical error. Test aborted: " + rc);
+        }
     }
 
     function _typeof() {

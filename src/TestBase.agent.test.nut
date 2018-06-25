@@ -1,6 +1,8 @@
 class TestBase {
 
     client              = null;
+    url                 = null;
+    clientid            = null;
     options             = null;
     device2cloud_url    = null;
 
@@ -26,17 +28,26 @@ class TestBase {
 
         local password  = AzureIoTHub.SharedAccessSignature.create(resourceUri, null, cn.SharedAccessKey, AzureIoTHub.Authorization.anHourFromNow()).toString();
         local username  = cn.HostName + devPath + "/" + AZURE_HTTP_API_VERSION;
-        local url       = "ssl://" + cn.HostName;
+
+        url = "ssl://" + cn.HostName;
+        clientid = cn.DeviceId;
 
         device2cloud_url = "devices/" + cn.DeviceId + "/messages/events/";
         options = {"username" : username, "password" : password};
 
-        client = mqtt.createclient(url, cn.DeviceId, _onmessage.bindenv(this), _ondelivery.bindenv(this), _disconnected.bindenv(this));
+        client = mqtt.createclient();
     }
 
     function _connect() {
         print("Connecting");
-        client.connect(_onconnected.bindenv(this), options);
+        client.onconnect(_onconnected.bindenv(this));
+        client.onmessage(_onmessage.bindenv(this));
+        client.connect(url, clientid, options);
+    }
+
+    function _disconnect() {
+        print("Disconnecting");
+        client.disconnect(_disconnected.bindenv(this));
     }
 
     function _onmessage(message) {
