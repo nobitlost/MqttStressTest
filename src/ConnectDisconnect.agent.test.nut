@@ -7,6 +7,7 @@ class ConnectDisconnectTest extends TestBase {
     }
 
     function _run() {
+        if (client == null) return;
         _connect();
     }
 
