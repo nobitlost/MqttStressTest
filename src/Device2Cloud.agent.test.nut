@@ -22,9 +22,10 @@ class Device2CloudTest extends TestBase {
 
                 rand = ::irand(100);
                 if (rand < 50) {
-                    local id = message.sendsync();
+                    // TODO: revert when sync call is enabled
+                    // message.sendsync();
                 } else {
-                    local id = message.sendasync(_onSend.bindenv(this));
+                    message.sendasync(_onSend.bindenv(this));
                 }
                 print("Message was sent");
 

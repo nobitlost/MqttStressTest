@@ -43,7 +43,7 @@ const rebootChance = 30;
 const stopChance   = 70;
 const chaosTimer   = 100;
 
-MAX_MESSAGE_SIZE <- 524288; //512Kb
+MAX_MESSAGE_SIZE <- 65536; //64Kb
 
 MESSAGE_PERIOD <- 10; //sec
 
@@ -85,5 +85,4 @@ function irand(max) {
 }
 
 tests <- [CreateClientTest, ConnectDisconnectTest, Device2CloudTest, SubscribeTest];
-
 init();
