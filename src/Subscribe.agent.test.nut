@@ -6,10 +6,11 @@ class SubscribeTest extends TestBase {
     constructor(authToken) {
         _create(authToken);
 
-        imp.wakeup(1, _connect.bindenv(this));
+        _connect();
     }
 
     function _run() {
+        if (client == null) return;
         local nextMethod = ::irand(100);
 
         if (nextMethod < 33) {
@@ -54,6 +55,7 @@ class SubscribeTest extends TestBase {
     }
 
     function _subscribe() {
+        if (client == null) return;
         print("Subscribing");
         local qos = 0; // AT_MOST_ONCE
         client.subscribe(topic, 0, _onsubscribe.bindenv(this));

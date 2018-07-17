@@ -7,6 +7,15 @@ class ConnectDisconnectTest extends TestBase {
     }
 
     function _run() {
+        if (client == null) return;
+
+        // cover a corner case: a message is created before connection is open
+        local message = null;
+        if (::irand(100) < 50) {
+            print("Creating a message before connecting...");
+            message = client.createmessage("topic", "data");
+        }
+
         _connect();
     }
 

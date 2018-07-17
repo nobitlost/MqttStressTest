@@ -85,5 +85,4 @@ function irand(max) {
 }
 
 tests <- [CreateClientTest, ConnectDisconnectTest, Device2CloudTest, SubscribeTest];
-
 init();

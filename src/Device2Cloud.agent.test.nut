@@ -20,12 +20,7 @@ class Device2CloudTest extends TestBase {
                 local body = blob(rand).tostring();
                 local message = client.createmessage(device2cloud_url, body);
 
-                rand = ::irand(100);
-                if (rand < 50) {
-                    local id = message.sendsync();
-                } else {
-                    local id = message.sendasync(_onSend.bindenv(this));
-                }
+                message.sendasync(_onSend.bindenv(this));
                 print("Message was sent");
 
                 // send next at once?
